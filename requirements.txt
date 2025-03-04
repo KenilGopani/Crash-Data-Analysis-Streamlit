@@ -1,5 +1,5 @@
 altair==5.5.0
-altgraph @ file:///AppleInternal/Library/BuildRoots/2c89a47b-9dd5-11ef-938f-6e654a286000/Library/Caches/com.apple.xbs/Sources/python3/altgraph-0.17.2-py2.py3-none-any.whl
+altgraph==0.17.2
 attrs==25.1.0
 blinker==1.9.0
 cachetools==5.5.2
