@@ -11,16 +11,21 @@ import base64
 
 
 # Set up BigQuery client using environment variable
+import json
+import streamlit as st
+from google.cloud import bigquery
+from google.oauth2 import service_account
+
 @st.cache_data
 def load_data_from_bigquery():
     # Load service account key from Streamlit secrets
-    service_account_info = json.loads(st.secrets["BIGQUERY_KEY"])
+    service_account_info = st.secrets["BIGQUERY_KEY"]
 
     # Parse the credentials and initialize BigQuery client
     credentials = service_account.Credentials.from_service_account_info(service_account_info)
     client = bigquery.Client(credentials=credentials)
 
-    # Define your query
+    # Define and execute your query
     query = """
     SELECT 
         LATITUDE, 
@@ -36,10 +41,14 @@ def load_data_from_bigquery():
         SEVERITY_CATEGORY
     FROM `cloud-data-mining-452501.processed_data.cleaned_crash_data`
     """
-    
-    # Execute query and return results as a DataFrame
     df = client.query(query).to_dataframe()
     return df
+
+# Example usage
+st.title("Crash Data Analysis Dashboard")
+df = load_data_from_bigquery()
+st.write(df.head())
+
 
 # Load data and build Streamlit dashboard
 st.title("Crash Data Analysis Dashboard")
