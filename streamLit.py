@@ -1,12 +1,34 @@
+import os
+import json
 import streamlit as st
 import pandas as pd
 from google.cloud import bigquery
+from google.oauth2 import service_account
 import plotly.express as px
 
-# Set up BigQuery client
+import base64
+
+
+
+# Set up BigQuery client using environment variable
 @st.cache_data
 def load_data_from_bigquery():
-    client = bigquery.Client.from_service_account_json("/Users/spartan/Downloads/SEM-2_Assignments/255-Data-Mining/assignment_1/bigquery-key.json")  # Use JSON key file
+    # Decode Base64-encoded key from the environment variable
+    encoded_key = os.getenv("BIGQUERY_KEY")
+    if not encoded_key:
+        raise ValueError("BIGQUERY_KEY environment variable not set.")
+
+    service_account_info = json.loads(base64.b64decode(encoded_key).decode())
+
+    # Parse the JSON key from the environment variable
+    credentials = service_account.Credentials.from_service_account_info(
+        json.loads(service_account_info)
+    )
+
+    # Initialize BigQuery client with the credentials
+    client = bigquery.Client(credentials=credentials)
+
+    # Define your query
     query = """
     SELECT 
         LATITUDE, 
@@ -22,11 +44,12 @@ def load_data_from_bigquery():
         SEVERITY_CATEGORY
     FROM `cloud-data-mining-452501.processed_data.cleaned_crash_data`
     """
+    
+    # Execute query and return results as a DataFrame
     df = client.query(query).to_dataframe()
     return df
 
-
-# Load data
+# Load data and build Streamlit dashboard
 st.title("Crash Data Analysis Dashboard")
 st.write("This dashboard visualizes crash data interactively.")
 df = load_data_from_bigquery()
@@ -77,4 +100,3 @@ severity_chart_data = filtered_data['SEVERITY_CATEGORY'].value_counts().reset_in
 severity_chart_data.columns = ['Severity', 'Count']
 fig_pie = px.pie(severity_chart_data, names='Severity', values='Count', title="Severity Distribution")
 st.plotly_chart(fig_pie)
-
