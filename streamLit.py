@@ -13,19 +13,11 @@ import base64
 # Set up BigQuery client using environment variable
 @st.cache_data
 def load_data_from_bigquery():
-    # Decode Base64-encoded key from the environment variable
-    encoded_key = os.getenv("BIGQUERY_KEY")
-    if not encoded_key:
-        raise ValueError("BIGQUERY_KEY environment variable not set.")
+    # Load service account key from Streamlit secrets
+    service_account_info = json.loads(st.secrets["BIGQUERY_KEY"])
 
-    service_account_info = json.loads(base64.b64decode(encoded_key).decode())
-
-    # Parse the JSON key from the environment variable
-    credentials = service_account.Credentials.from_service_account_info(
-        json.loads(service_account_info)
-    )
-
-    # Initialize BigQuery client with the credentials
+    # Parse the credentials and initialize BigQuery client
+    credentials = service_account.Credentials.from_service_account_info(service_account_info)
     client = bigquery.Client(credentials=credentials)
 
     # Define your query
