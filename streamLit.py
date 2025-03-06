@@ -13,7 +13,7 @@ def load_data_from_bigquery():
         service_account_dict = json.loads(service_account_json)
         credentials = service_account.Credentials.from_service_account_info(service_account_dict)
         # Initialize BigQuery client
-        client = bigquery.Client(credentials=credentials, project='')
+        client = bigquery.Client(credentials=credentials, project='cloud-data-mining-452501')
 
         query = """
         SELECT 
