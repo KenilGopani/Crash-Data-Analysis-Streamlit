@@ -1,3 +1,4 @@
+import json
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -8,8 +9,12 @@ from google.oauth2 import service_account
 @st.cache_data
 def load_data_from_bigquery():
     try:
-        credentials = service_account.Credentials.from_service_account_info(st.secrets["BIGQUERY_KEY"])
-        client = bigquery.Client(credentials=credentials)
+        service_account_json = st.secrets[""]
+        service_account_dict = json.loads(service_account_json)
+        credentials = service_account.Credentials.from_service_account_info(service_account_dict)
+        # Initialize BigQuery client
+        client = bigquery.Client(credentials=credentials, project='')
+
         query = """
         SELECT 
             LATITUDE, LONGITUDE, CRASHDATETIME, PRIMARYCOLLISIONFACTOR, 
